@@ -2,8 +2,8 @@
 "students":[
 {
 	"unique_id":          0,
-	"name":               "Архипова",
-	"surname":            "Дарья",
+	"name":               "Дарья",
+	"surname":            "Архипова",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -34,8 +34,8 @@
 },
 {
 	"unique_id":          1,
-	"name":               "Байбеков",
-	"surname":            "Рустам",
+	"name":               "Рустам",
+	"surname":            "Байбеков",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -66,8 +66,8 @@
 },
 {
 	"unique_id":          2,
-	"name":               "Дробин",
-	"surname":            "Роман",
+	"name":               "Роман",
+	"surname":            "Дробин",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -98,8 +98,8 @@
 },
 {
 	"unique_id":          3,
-	"name":               "Жовтый",
-	"surname":            "Анатолий",
+	"name":               "Анатолий",
+	"surname":            "Жовтый",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -130,8 +130,8 @@
 },
 {
 	"unique_id":          4,
-	"name":               "Иванов",
-	"surname":            "Артем",
+	"name":               "Артем",
+	"surname":            "Иванов",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -162,8 +162,8 @@
 },
 {
 	"unique_id":          5,
-	"name":               "Калашников",
-	"surname":            "Дмитрий",
+	"name":               "Дмитрий",
+	"surname":            "Калашников",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -194,8 +194,8 @@
 },
 {
 	"unique_id":          6,
-	"name":               "Камызин",
-	"surname":            "Артем",
+	"name":               "Артем",
+	"surname":            "Камызин",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -226,8 +226,8 @@
 },
 {
 	"unique_id":          7,
-	"name":               "Климов",
-	"surname":            "Кирилл",
+	"name":               "Кирилл",
+	"surname":            "Климов",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -258,8 +258,8 @@
 },
 {
 	"unique_id":          8,
-	"name":               "Козлов",
-	"surname":            "Никита",
+	"name":               "Никита",
+	"surname":            "Козлов",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -290,8 +290,8 @@
 },
 {
 	"unique_id":          9,
-	"name":               "Коломытцева",
-	"surname":            "Александра",
+	"name":               "Александра",
+	"surname":            "Коломытцева",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -322,8 +322,8 @@
 },
 {
 	"unique_id":          10,
-	"name":               "Лазутов",
-	"surname":            "Марк",
+	"name":               "Марк",
+	"surname":            "Лазутов",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -354,8 +354,8 @@
 },
 {
 	"unique_id":          11,
-	"name":               "Лаптев",
-	"surname":            "Владислав",
+	"name":               "Владислав",
+	"surname":            "Лаптев",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -386,8 +386,8 @@
 },
 {
 	"unique_id":          12,
-	"name":               "Шимченко",
-	"surname":            "Лев",
+	"name":               "Лев",
+	"surname":            "Шимченко",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -418,8 +418,8 @@
 },
 {
 	"unique_id":          13,
-	"name":               "Юров",
-	"surname":            "Юрий",
+	"name":               "Юрий",
+	"surname":            "Юров",
 	"group":              6408,
 	"subgroup":           1,
 	"lab_works_sessions": [
@@ -450,8 +450,8 @@
 },
 {
 	"unique_id":          14,
-	"name":               "Делов",
-	"surname":            "Константин",
+	"name":               "Константин",
+	"surname":            "Делов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -482,8 +482,8 @@
 },
 {
 	"unique_id":          15,
-	"name":               "Долгих",
-	"surname":            "Данила",
+	"name":               "Данила",
+	"surname":            "Долгих",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -514,8 +514,8 @@
 },
 {
 	"unique_id":          16,
-	"name":               "Заров",
-	"surname":            "Евгений",
+	"name":               "Евгений",
+	"surname":            "Заров",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -546,8 +546,8 @@
 },
 {
 	"unique_id":          17,
-	"name":               "Котельников",
-	"surname":            "Егор",
+	"name":               "Егор",
+	"surname":            "Котельников",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -578,8 +578,8 @@
 },
 {
 	"unique_id":          18,
-	"name":               "Миролюбов",
-	"surname":            "Вячеслав",
+	"name":               "Вячеслав",
+	"surname":            "Миролюбов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -610,8 +610,8 @@
 },
 {
 	"unique_id":          19,
-	"name":               "Муравьева",
-	"surname":            "Анастасия",
+	"name":               "Анастасия",
+	"surname":            "Муравьева",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -642,8 +642,8 @@
 },
 {
 	"unique_id":          20,
-	"name":               "Носов",
-	"surname":            "Никита",
+	"name":               "Никита",
+	"surname":            "Носов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -674,8 +674,8 @@
 },
 {
 	"unique_id":          21,
-	"name":               "Полтораднев",
-	"surname":            "Алексей",
+	"name":               "Алексей",
+	"surname":            "Полтораднев",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -706,8 +706,8 @@
 },
 {
 	"unique_id":          22,
-	"name":               "Серафимович",
-	"surname":            "Дмитрий",
+	"name":               "Дмитрий",
+	"surname":            "Серафимович",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -738,8 +738,8 @@
 },
 {
 	"unique_id":          23,
-	"name":               "Смолькина",
-	"surname":            "Екатерина",
+	"name":               "Екатерина",
+	"surname":            "Смолькина",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -770,8 +770,8 @@
 },
 {
 	"unique_id":          24,
-	"name":               "Степанов",
-	"surname":            "Никита",
+	"name":               "Никита",
+	"surname":            "Степанов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -802,8 +802,8 @@
 },
 {
 	"unique_id":          25,
-	"name":               "Шилов",
-	"surname":            "Дмитрий",
+	"name":               "Дмитрий",
+	"surname":            "Шилов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
@@ -834,8 +834,8 @@
 },
 {
 	"unique_id":          25,
-	"name":               "Шилов",
-	"surname":            "Дмитрий",
+	"name":               "Дмитрий",
+	"surname":            "Шилов",
 	"group":              6408,
 	"subgroup":           2,
 	"lab_works_sessions": [
