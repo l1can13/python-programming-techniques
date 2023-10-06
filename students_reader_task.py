@@ -5,7 +5,7 @@ from datetime import date, datetime
 import os.path
 import json
 
-LAB_WORK_SESSION_KEYS = ("presence", "lab_work_n", "lab_work_mark", "date")
+LAB_WORK_SESSION_KEYS = ("date", "presence", "lab_work_n", "lab_work_mark")
 STUDENT_KEYS = ("unique_id", "name", "surname", "group", "subgroup", "lab_works_sessions")
 
 
@@ -15,18 +15,21 @@ class LabWorkSession:
     """
 
     def __init__(self, presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date):
-        if not self._validate_args(presence, lab_work_number, lab_work_mark, lab_work_date):
+        self._presence = presence
+        self._lab_work_number = lab_work_number
+        self._lab_work_mark = lab_work_mark
+        self._lab_work_date = lab_work_date
+
+    def __new__(cls, presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date):
+        if not cls._validate_args(presence, lab_work_number, lab_work_mark, lab_work_date):
             raise ValueError(f"LabWorkSession ::"
                              f"incorrect args :\n"
                              f"presence       : {presence},\n"
                              f"lab_work_number: {lab_work_number},\n"
                              f"lab_work_mark  : {lab_work_mark},\n"
                              f"lab_work_date  : {lab_work_date}")
-
-        self.presence = presence
-        self.lab_work_number = lab_work_number
-        self.lab_work_mark = lab_work_mark
-        self.lab_work_date = lab_work_date
+        
+        return super().__new__(cls)
 
     @staticmethod
     def _validate_args(presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date) -> bool:
@@ -289,7 +292,7 @@ def _load_lab_work_session(json_node) -> LabWorkSession:
         bool(json_node['presence']),
         int(json_node['lab_work_n']),
         int(json_node['lab_work_mark']),
-        datetime.strptime(json_node['date'], "%d:%m:%y").date()
+        datetime.strptime(json_node['date'].strip('"'), "%d:%m:%y").date()
     )
 
     return result
@@ -347,7 +350,28 @@ def load_students_csv(file_path: str) -> Union[List[Student], None]:
     assert isinstance(file_path, str)
     if not os.path.exists(file_path):
         return None
-    ...
+
+    with open(file_path, 'rt', encoding='utf-8') as input_file:
+        lines = input_file.readlines()
+
+    headers = lines[0].strip().split(';')
+    lab_session = []
+    students = []
+
+    for line in lines[1:]:
+        line_lst = line.strip().split(';')
+        lab_session.append(dict(zip(headers[5:], line_lst[5:])))
+
+    for line in lines[1::4]:
+        line_lst = line.replace('"', "").split(';')[:-1]
+        student_dict = dict(zip(headers[:5], line_lst[:5]))
+        student_dict['lab_works_sessions'] = []
+        for i in range(4):
+            student_dict['lab_works_sessions'].append(lab_session[0])
+            del lab_session[0]
+        students.append(_load_student(student_dict))
+
+    return students
 
 
 def load_students_json(file_path: str) -> Union[List[Student], None]:
@@ -409,7 +433,32 @@ def save_students_csv(file_path: str, students: List[Student]):
     """
     Запись списка студентов в csv файл
     """
-    ...
+
+    assert isinstance(file_path, str)
+
+    headers = list(STUDENT_KEYS[:-1])
+    headers.extend(list(LAB_WORK_SESSION_KEYS))
+
+    with open(file_path, 'w', encoding='utf-8') as output_file:
+        header_line = ';'.join(headers)
+        output_file.write(f'{header_line}\n')
+
+        for student in students:
+            for lab_work in student.lab_work_sessions:
+                data = [
+                        student.unique_id,
+                        student.name,
+                        student.surname,
+                        student.group,
+                        student.subgroup,
+                        lab_work.lab_work_date.strftime('%d:%m:%y'),
+                        int(lab_work.presence),
+                        lab_work.lab_work_number,
+                        lab_work.lab_work_mark
+                ]
+                line = ';'.join(str(x) for x in data)
+
+                output_file.write(f'{line}\n')
 
 
 if __name__ == '__main__':
@@ -420,12 +469,12 @@ if __name__ == '__main__':
     # Задание на проверку csv читалки:
     # 1.-3. аналогично
 
-    students = load_students_json('students.json')
-    save_students_json('students_saved.json', students)
+    # students = load_students_json('students.json')
+    # save_students_json('students_saved.json', students)
 
-    # students = load_students_csv('students.csv')
-    # students = save_students_csv('students_saved.csv')
-    # load_students_csv('students_saved.csv', students)
+    students = load_students_csv('students.csv')
+    save_students_csv('students_saved.csv', students)
+    students = load_students_csv('students_saved.csv')
 
     for s in students:
         print(s)
