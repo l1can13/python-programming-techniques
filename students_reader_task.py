@@ -6,7 +6,8 @@ import os.path
 import json
 
 LAB_WORK_SESSION_KEYS = ("date", "presence", "lab_work_n", "lab_work_mark")
-STUDENT_KEYS = ("unique_id", "name", "surname", "group", "subgroup", "lab_works_sessions")
+STUDENT_KEYS = ("unique_id", "name", "surname", "group",
+                "subgroup", "lab_works_sessions")
 
 
 class LabWorkSession:
@@ -28,7 +29,7 @@ class LabWorkSession:
                              f"lab_work_number: {lab_work_number},\n"
                              f"lab_work_mark  : {lab_work_mark},\n"
                              f"lab_work_date  : {lab_work_date}")
-        
+
         return super().__new__(cls)
 
     @staticmethod
@@ -86,19 +87,24 @@ class LabWorkSession:
     @lab_work_number.setter
     def lab_work_number(self, val: int) -> None:
         if not isinstance(val, int):
-            raise ValueError(f"LabWorkSession::lab_work_number::setter arg val error... Type {type(val)} is incorrect")
+            raise ValueError(
+                f"LabWorkSession::lab_work_number::setter arg val error... Type {type(val)} is incorrect")
         if not self._presence:
-            raise ValueError(f"LabWorkSession::lab_work_number::new state invalid... Presence is false")
+            raise ValueError(
+                f"LabWorkSession::lab_work_number::new state invalid... Presence is false")
         self._lab_work_number = max(1, val)
 
     @lab_work_mark.setter
     def lab_work_mark(self, val: int) -> None:
         if not isinstance(val, int):
-            raise ValueError(f"LabWorkSession::lab_work_mark::setter arg val error... Type {type(val)} is incorrect")
+            raise ValueError(
+                f"LabWorkSession::lab_work_mark::setter arg val error... Type {type(val)} is incorrect")
         if not self._presence:
-            raise ValueError(f"LabWorkSession::lab_work_mark::new state invalid... Presence is false")
+            raise ValueError(
+                f"LabWorkSession::lab_work_mark::new state invalid... Presence is false")
         if self._lab_work_number == -1:
-            raise ValueError(f"LabWorkSession::lab_work_mark::new state invalid... Lab work number is -1")
+            raise ValueError(
+                f"LabWorkSession::lab_work_mark::new state invalid... Lab work number is -1")
         self._lab_work_mark = max(0, val)
 
     @presence.setter
@@ -111,7 +117,8 @@ class LabWorkSession:
 
 
 class Student:
-    __slots__ = ('_unique_id', '_name', '_surname', '_group', '_subgroup', '_lab_work_sessions')
+    __slots__ = ('_unique_id', '_name', '_surname',
+                 '_group', '_subgroup', '_lab_work_sessions')
 
     def __init__(self, unique_id: int, name: str, surname: str, group: int, subgroup: int):
         """
@@ -208,6 +215,8 @@ class Student:
                 f"\t\"subgroup\":           {self.subgroup},\n"
                 f"\t\"lab_works_sessions\": [\n {sep.join(str(v) for v in self.lab_work_sessions)}]\n"
                 f"}}")
+    
+    __repr__ = __str__
 
     @property
     def unique_id(self) -> int:
@@ -284,9 +293,13 @@ def _load_lab_work_session(json_node) -> LabWorkSession:
         hint: чтобы прочитать дату из формата строки, указанного в json используйте
         date(*tuple(map(int, json_node['date'].split(':'))))
     """
-    for key in LAB_WORK_SESSION_KEYS:
-        if key not in json_node:
-            raise KeyError(f"load_lab_work_session:: key \"{key}\" not present in json_node")
+    # for key in LAB_WORK_SESSION_KEYS:
+    #     if key not in json_node:
+    
+
+    if not all(key in json_node.keys() for key in LAB_WORK_SESSION_KEYS):
+        raise KeyError(
+                f"load_lab_work_session:: key not present in json_node")
 
     result = LabWorkSession(
         bool(json_node['presence']),
@@ -306,7 +319,8 @@ def _load_student(json_node) -> Student:
     """
     for key in STUDENT_KEYS:
         if key not in json_node:
-            raise KeyError(f"load_student:: key \"{key}\" not present in json_node")
+            raise KeyError(
+                f"load_student:: key \"{key}\" not present in json_node")
     student = Student(
         int(json_node['unique_id']),
         json_node['name'],
@@ -446,15 +460,15 @@ def save_students_csv(file_path: str, students: List[Student]):
         for student in students:
             for lab_work in student.lab_work_sessions:
                 data = [
-                        student.unique_id,
-                        student.name,
-                        student.surname,
-                        student.group,
-                        student.subgroup,
-                        lab_work.lab_work_date.strftime('%d:%m:%y'),
-                        int(lab_work.presence),
-                        lab_work.lab_work_number,
-                        lab_work.lab_work_mark
+                    student.unique_id,
+                    student.name,
+                    student.surname,
+                    student.group,
+                    student.subgroup,
+                    lab_work.lab_work_date.strftime('%d:%m:%y'),
+                    int(lab_work.presence),
+                    lab_work.lab_work_number,
+                    lab_work.lab_work_mark
                 ]
                 line = ';'.join(str(x) for x in data)
 
@@ -469,12 +483,12 @@ if __name__ == '__main__':
     # Задание на проверку csv читалки:
     # 1.-3. аналогично
 
-    # students = load_students_json('students.json')
+    students = load_students_json('students.json')
     # save_students_json('students_saved.json', students)
+    # students = load_students_json('students_saved.json')
 
-    students = load_students_csv('students.csv')
-    save_students_csv('students_saved.csv', students)
-    students = load_students_csv('students_saved.csv')
+    # students = load_students_csv('students.csv')
+    # save_students_csv('students_saved.csv', students)
+    # students = load_students_csv('students_saved.csv')
 
-    for s in students:
-        print(s)
+    print(students)
