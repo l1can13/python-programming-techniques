@@ -174,7 +174,7 @@ class Regression:
         sum_xi_yi = np.sum(x * y)
 
         # Рассчитываем коэффициенты регрессии
-        k = (n * sum_xi_yi - sum_xi * sum_yi) / (n * sum_xi_squared - sum_xi ** 2)
+        k = (sum_xi_yi - sum_xi * sum_yi / n) / (sum_xi_squared - sum_xi ** 2 / n)
         b = (sum_yi - k * sum_xi) / n
 
         return k, b
@@ -235,38 +235,29 @@ class Regression:
         :param z: массив значений по z
         :returns: возвращает тройку (kx, ky, b), которая является решением задачи (Σ(zi - (yi * ky + xi * kx + b))^2)->min
         """
-        n = len(x)  # Количество наблюдений
+        sum_x = np.sum(x)
+        sum_y = np.sum(y)
+        sum_z = np.sum(z)
+        sum_xy = np.sum(x * y)
+        sum_xx = np.sum(x * x)
+        sum_yy = np.sum(y * y)
+        sum_zy = np.sum(z * y)
+        sum_zx = np.sum(x * z)
 
-        # Рассчитываем необходимые суммы
-        sum_xi = np.sum(x)
-        sum_yi = np.sum(y)
-        sum_zi = np.sum(z)
-        sum_xi_squared = np.sum(x ** 2)
-        sum_xi_yi = np.sum(x * y)
-        sum_yi_squared = np.sum(y ** 2)
-        sum_xi_zi = np.sum(x * z)
-        sum_yi_zi = np.sum(y * z)
+        hessian = np.array([[sum_xx, sum_xy, sum_x],
+                            [sum_xy, sum_yy, sum_y],
+                            [sum_x, sum_y, x.size]])
 
-        # Рассчитываем элементы матрицы Гессе
-        hesse_matrix = np.array([
-            [sum_xi_squared, sum_xi_yi, sum_xi],
-            [sum_xi_yi, sum_yi_squared, sum_yi],
-            [sum_xi, sum_yi, n]
-        ])
+        # Вектор правой части
+        rhs = np.array([sum_xy + sum_xx - sum_zx, sum_yy + sum_xy - sum_zy, sum_y + sum_x - sum_z])
 
-        # Рассчитываем градиент
-        grad_vector = np.array([
-            np.sum(-z * x + y * x * y + x ** 2 + x),
-            np.sum(-z * y + y ** 2 + x * y + y),
-            np.sum(-z + y * y + x * y)
-        ])
+        # Решаем систему уравнений
+        solution = np.linalg.solve(hessian, rhs)
 
-        # Решаем систему уравнений для получения коэффициентов
-        coefficients = np.linalg.solve(hesse_matrix, grad_vector)
+        # Итоговый результат
+        result = np.array([1.0, 1.0, 0.0]) - solution
 
-        kx, ky, b = coefficients
-
-        return kx, ky, b
+        return result
 
     @staticmethod
     def n_linear_regression(data_rows: np.ndarray) -> np.ndarray:
@@ -289,28 +280,32 @@ class Regression:
         :return:
         """
         rows, cols = data_rows.shape
-        n = cols - 1  # Количество признаков
 
-        # Рассчитываем элементы матрицы Гессе
-        hesse_matrix = np.zeros((n + 1, n + 1))
-        grad_vector = np.zeros(n + 1)
+        hessian = np.zeros((cols, cols,), dtype=float)
+        grad = np.zeros((cols,), dtype=float)
+        x_0 = np.zeros((cols,), dtype=float)
 
-        for i in range(n):
-            for j in range(n):
-                hesse_matrix[i, j] = np.sum(data_rows[:, i] * data_rows[:, j])
+        cols -= 1
 
-        for i in range(n):
-            hesse_matrix[i, n] = hesse_matrix[n, i] = np.sum(data_rows[:, i])
+        for row in range(cols):
+            x_0[row] = 1.0
+            for col in range(row + 1):
+                hessian[row, col] = np.dot(data_rows[:, row], data_rows[:, col])
+                hessian[col, row] = hessian[row, col]
 
-        hesse_matrix[n, n] = rows
+        for i in range(cols + 1):
+            hessian[i, cols] = np.sum(data_rows[:, i])
+            hessian[cols, i] = hessian[i, cols]
 
-        for i in range(n + 1):
-            grad_vector[i] = np.sum(data_rows[:, i] * data_rows[:, n])
+        hessian[cols, cols] = data_rows.shape[0]
 
-        # Решаем систему уравнений для получения коэффициентов
-        coefficients = np.linalg.solve(hesse_matrix, grad_vector)
+        for row in range(cols):
+            grad[row] = np.sum(hessian[row, 0: cols]) - np.dot(data_rows[:, cols], data_rows[:, row])
 
-        return coefficients
+        grad[cols] = np.sum(hessian[cols, 0: cols]) - np.sum(data_rows[:, cols])
+
+        solution = np.linalg.solve(hessian, -grad)
+        return x_0 + solution
 
     @staticmethod
     def poly_regression(x: np.ndarray, y: np.ndarray, order: int = 5) -> np.ndarray:
@@ -385,15 +380,6 @@ class Regression:
         """
         n = len(x)  # Количество наблюдений
 
-        # Создаем матрицу D
-        D = np.column_stack([x ** 2, x * y, y ** 2, x, y, np.ones_like(x)])
-
-        # Рассчитываем матрицу A
-        A = np.zeros((6, 6))
-        for i in range(6):
-            for j in range(6):
-                A[i, j] = np.sum(D[:, i] * D[:, j])
-
         # Рассчитываем вектор B
         B = np.array([
             np.sum(x ** 2 * z),
@@ -403,6 +389,15 @@ class Regression:
             np.sum(y * z),
             np.sum(z)
         ])
+
+        # Создаем матрицу D
+        D = np.column_stack([x ** 2, x * y, y ** 2, x, y, np.ones_like(x)])
+
+        # Рассчитываем матрицу A
+        A = np.zeros((6, 6))
+        for i in range(6):
+            for j in range(6):
+                A[i, j] = np.sum(D[:, i] * D[:, j])
 
         # Решаем систему уравнений для получения коэффициентов
         coefficients = np.linalg.solve(A, B)
@@ -470,32 +465,18 @@ class Regression:
            регрессионную плоскость вида:\n z = kx*x + ky*y + b\n
         :return:
         """
-        print("bi-linear reg test:")
-
-        # Генерируем тестовые данные
         x, y, z = Regression.test_data_2d()
-
-        # Получаем коэффициенты билинейной регрессии
         kx, ky, b = Regression.bi_linear_regression(x, y, z)
-
-        # Строим трехмерный график
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(x, y, z, label='Точки данных')
-
-        # Генерируем сетку для построения регрессионной плоскости
-        x_range = np.linspace(min(x), max(x), 100)
-        y_range = np.linspace(min(y), max(y), 100)
-        x_mesh, y_mesh = np.meshgrid(x_range, y_range)
-        z_mesh = kx * x_mesh + ky * y_mesh + b
-
-        ax.plot_surface(x_mesh, y_mesh, z_mesh, cmap=cm.coolwarm, alpha=0.5, label='Регрессионная плоскость')
-
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-        ax.set_title('Билинейная регрессия')
-        ax.legend()
+        print("\nbi linear regression test:")
+        print(f"z(x, y) = {kx:1.5} * x + {ky:1.5} * y + {b:1.5}\n")
+        x_, y_ = np.meshgrid(np.linspace(np.min(x), np.max(x), 100), np.linspace(np.min(y), np.max(y), 100))
+        z_ = kx * x_ + y_ * ky + b
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        ax.plot(x, y, z, 'r.')
+        surf = ax.plot_surface(x_, y_, z_, linewidth=0, antialiased=False, edgecolor='none', alpha=0.5)
+        plt.xlabel("x")
+        plt.ylabel("y")
+        fig.colorbar(surf, shrink=0.5, aspect=5)
         plt.show()
 
     @staticmethod
@@ -509,77 +490,43 @@ class Regression:
         :return:
         """
         print('\npoly regression test:')
-
-        # Генерируем тестовые данные
         x, y = Regression.test_data_along_line()
-
-        # Получаем коэффициенты полиномиальной регрессии
         coefficients = Regression.poly_regression(x, y)
-
-        # Строим график
-        plt.scatter(x, y, label='Точки данных')
-        plt.plot(x, Regression.polynom(x, coefficients), color='red', label='Регрессионная кривая')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.title('Полиномиальная регрессия')
-        plt.legend()
+        y_ = Regression.polynom(x, coefficients)
+        print(f"y(x) = {' + '.join(f'{coefficients[i]:.4} * x^{i}' for i in range(coefficients.size))}\n")
+        plt.plot(x, y_, 'g')
+        plt.plot(x, y, 'r.')
         plt.show()
 
     @staticmethod
     def n_linear_reg_example():
+        data = Regression.test_data_nd()
         print("\nn linear regression test:")
-
-        # Генерируем тестовые данные для n-мерной линейной регрессии
-        data_rows = Regression.test_data_nd()
-
-        # Получаем коэффициенты n-мерной линейной регрессии
-        coefficients = Regression.n_linear_regression(data_rows)
-
-        # Выводим результаты
-        print("Коэффициенты n-мерной линейной регрессии:")
-        for i, coeff in enumerate(coefficients):
-            print(f"b{i} = {coeff}")
-
-        # Строим график для n-мерной линейной регрессии
-        # В данном случае, поскольку у нас n-мерная линейная регрессия,
-        # мы можем построить график для двух произвольных признаков.
-        plt.scatter(data_rows[:, 0], data_rows[:, 1], label='Точки данных (n-мерная линейная регрессия)')
-        plt.xlabel('Признак 1')
-        plt.ylabel('Признак 2')
-        plt.title('n-мерная линейная регрессия')
-        plt.legend()
-        plt.show()
+        coefficients = Regression.n_linear_regression(data)
+        print(
+            f"z(X) = {' + '.join(f'{coefficients[i]:.4} * x_{i}' if i != coefficients.size - 1 else f'{coefficients[i]:.4}' for i in range(coefficients.size))}\n")
 
     @staticmethod
     def quadratic_reg_example():
         """
         """
-        print('2D quadratic regression test:')
-
-        # Генерируем тестовые данные для квадратичной регрессии
         x, y, z = Regression.second_order_surface_2d()
-
-        # Получаем коэффициенты квадратичной регрессии
-        coefficients = Regression.quadratic_regression_2d(x, y, z)
-
-        # Строим график для квадратичной регрессии
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(x, y, z, label='Точки данных (квадратичная регрессия)')
-
-        # Создаем поверхность для отображения квадратичной регрессии
-        x_range = np.linspace(min(x), max(x), 100)
-        y_range = np.linspace(min(y), max(y), 100)
-        X, Y = np.meshgrid(x_range, y_range)
-        Z = Regression.distance_field(X, Y, *coefficients)
-        ax.plot_surface(X, Y, Z, alpha=0.5, rstride=100, cstride=100, color='red', label='Квадратичная поверхность')
-
-        ax.set_xlabel('Признак 1')
-        ax.set_ylabel('Признак 2')
-        ax.set_zlabel('Целевая переменная')
-        ax.set_title('2D квадратичная регрессия')
-        ax.legend()
-
+        coeffs = Regression.quadratic_regression_2d(x, y, z)
+        # y_ = polynom(x, coefficients)
+        print('\n2d quadratic regression test:')
+        print(
+            f"z(x, y) = {coeffs[0]:1.3} * x^2 + {coeffs[1]:1.3} * x * y + {coeffs[2]:1.3} * y^2 + {coeffs[3]:1.3} * x + {coeffs[4]:1.3} * y + {coeffs[5]:1.3}")
+        from matplotlib import cm
+        x_, y_ = np.meshgrid(np.linspace(np.min(x), np.max(x), 100), np.linspace(np.min(y), np.max(y), 100))
+        z_ = coeffs[0] * x_ * x_ + coeffs[1] * x_ * y_ + coeffs[2] * y_ * y_ + coeffs[3] * x_ + coeffs[4] * y_ + coeffs[
+            5]
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        ax.plot(x, y, z, 'r.')
+        surf = ax.plot_surface(x_, y_, z_, cmap=cm.coolwarm, linewidth=0, antialiased=False, edgecolor='none',
+                               alpha=0.5)
+        plt.xlabel("x")
+        plt.ylabel("y")
+        fig.colorbar(surf, shrink=0.5, aspect=5)
         plt.show()
 
 
@@ -589,4 +536,4 @@ if __name__ == "__main__":
     Regression.bi_linear_reg_example()
     Regression.n_linear_reg_example()
     Regression.poly_reg_example()
-    # Regression.quadratic_reg_example()
+    Regression.quadratic_reg_example()
